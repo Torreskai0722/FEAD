@@ -18,8 +18,11 @@ print(df_location)
 print(len(df_location['F']))
 
 # for i in range(len(df_location['F'])):
-for i in range(0,100):
-	print(df_location['F'][i]/1000000,df_location['S'][i]/1000000,(df_location['S'][i] - df_location['F'][i])/1000000)
+for i in range(0,10):
+	print(df_location['F'][i]/1000000000,df_location['S'][i]/1000000000,(df_location['S'][i] - df_location['F'][i])/1000000)
+	print(df_location['T'][i]/1000000000,df_location['G'][i]/1000000000)
+	print(df_location['T'][i]/1000000000-df_location['F'][i]/1000000000)
+	print(df_location['G'][i]/1000000000-df_location['F'][i]/1000000000)	
 
 # for j in range(len(df_location['receive_ts'])):
 # 	print(df_location['receive_ts'][j])
