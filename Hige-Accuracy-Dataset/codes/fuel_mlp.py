@@ -7,7 +7,7 @@ import pymysql
 import json
 import numpy as np
 from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, median_absolute_error
 from pandas import read_csv,read_excel
 from keras.models import Sequential
 from keras.layers import Dense, Reshape
@@ -36,9 +36,13 @@ def data_access():
 	# file_fuel_rate = "/Users/torres_kai/Downloads/fuel-dataset-3/0x721_Ins_flow_rate.csv"
 
 	df_location = pd.read_csv(file_localization,index_col=False,usecols=[0,1,2,3],header=0,names = ['F','S','T','G'])
-	# df_location = pd.read_csv(file_localization,index_col=False,header=0)
-	df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,23,24,25,26,27,33,37],names=['time','throttle_position_percent',
-		'engine_torque_percent','driver_demand_engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','combined_vehicle_weight_kg', 'vehicle_speed_mps'])
+	# df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,23,24,25,26,27,33,37],names=['time','throttle_position_percent',
+	# 	'engine_torque_percent','driver_demand_engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','combined_vehicle_weight_kg', 'vehicle_speed_mps'])
+	df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,9,10,24,26,27,30,32,33,37],names=['time','brake_position_percent',
+		'retarder_actual_torque_percent','engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','cur_gear_pos',
+		'clutch_slip_rate_percent','combined_vehicle_weight_kg','vehicle_speed_mps'])
+	# df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,24,26,27,30],names=['time',
+	# 	'engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','cur_gear_pos'])
 	# df_rate = pd.read_csv(file_fuel_rate,index_col=False,header=None,sep='	')
 	df_rate = pd.read_csv(file_fuel_rate,index_col=False,header=None,sep='	',usecols=[0,1],names = ['time','fuel_rate'])
 
@@ -52,29 +56,50 @@ def data_access():
 	y = []
 
 	for i in range(len(df_rate['time'])):
+	# for i in range(90298,842000):
 		t = t0 + df_rate['time'][i]
 		if j >= len(df_vehicle['time']) - 1:
     			break
-		while j < len(df_vehicle['time']) and float(df_vehicle['time'][j])/1000000000 < t:
+		while j < 858400 and float(df_vehicle['time'][j])/1000000000 < t:
     			j = j + 1
-		print(j)
-		print(n)
 
-		throttle_position_percent = float(df_vehicle['throttle_position_percent'][j-1])
+		vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
+		brake_position_percent = float(df_vehicle['brake_position_percent'][j-1])
+		retarder_actual_torque_percent = float(df_vehicle['retarder_actual_torque_percent'][j-1])
+		clutch_slip_rate_percent = float(df_vehicle['clutch_slip_rate_percent'][j-1])
+		combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
+		# throttle_position_percent = float(df_vehicle['throttle_position_percent'][j-1])
 		engine_torque_percent = float(df_vehicle['engine_torque_percent'][j-1])
-		driver_demand_engine_torque_percent = float(df_vehicle['driver_demand_engine_torque_percent'][j-1])
+		# driver_demand_engine_torque_percent = float(df_vehicle['driver_demand_engine_torque_percent'][j-1])
 		engine_torque_loss_percent = float(df_vehicle['engine_torque_loss_percent'][j-1])
 		engine_speed_rpm = float(df_vehicle['engine_speed_rpm'][j-1])
-		combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
-		vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
+		# combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
+		# vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
+		cur_gear_pos = float(df_vehicle['cur_gear_pos'][j-1])
 
 		fuel_rate = float(df_rate['fuel_rate'][i])
 
-		data_ems = [throttle_position_percent,engine_torque_percent,driver_demand_engine_torque_percent,engine_torque_loss_percent,engine_speed_rpm, combined_vehicle_weight_kg, vehicle_speed_mps]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos,vehicle_speed_mps,brake_position_percent,
+		# retarder_actual_torque_percent,clutch_slip_rate_percent,combined_vehicle_weight_kg]
+		data_ems = [engine_speed_rpm,engine_torque_percent,cur_gear_pos,retarder_actual_torque_percent]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos]
 		data_label = [fuel_rate]
+
+		# if fuel_rate == 0:
+		# 	continue
+
+		if j < 90298:
+			continue
+
+		# if vehicle_speed_mps < 11:
+		# 	continue
+		# print(vehicle_speed_mps)
 
 		X.append(data_ems)
 		y.append(data_label)
+
+		print(i)
+		# print(n)
 
 		# print(t, float(df_vehicle['time'][j-1])/1000000000, t - float(df_vehicle['time'][j-1])/1000000000)
 
@@ -82,21 +107,11 @@ def data_access():
 
 	return X,y
 
-# define base model
-def baseline_model():
-	# create model
-	model = Sequential()
-	model.add(Dense(11, input_dim=9, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(1, kernel_initializer='normal'))
-	# Compile model
-	model.compile(loss='mean_squared_error', optimizer='adam')
-	return model
-
 # define the model
 def larger_model():
 	# create model
 	model = Sequential()
-	model.add(Dense(100, input_dim=7, kernel_initializer='normal', activation='relu'))
+	model.add(Dense(100, input_dim=4, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
@@ -108,27 +123,6 @@ def larger_model():
 	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
 	# model.add(Dense(3, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(1, kernel_initializer='normal'))
-	# Compile model
-	model.compile(loss='mean_squared_error', optimizer='adam')
-	return model
-
-# define wider model
-def cnn_model():
-	# create model
-	model = Sequential()
-	model.add(Dense(100, input_dim=56,kernel_initializer='normal', activation='relu'))
-	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
-	model.add(Reshape((5,5,4)))
-	model.add(TimeDistributed(Convolution1D(128, 4)))
-	model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
-	model.add(TimeDistributed(Flatten()))
-	model.add(Flatten())
-	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(1))
 	# Compile model
 	model.compile(loss='mean_squared_error', optimizer='adam')
 	return model
@@ -150,6 +144,7 @@ def kfold_load(X,y):
 # X = dataset[:,0:13]
 # Y = dataset[:,13]
 X,Y = data_access()
+print("load data success!")
 # print(X)
 # print(Y)
 print(np.mean(Y))
@@ -171,6 +166,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 r = 0
+acc = 0
 
 for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	# n = 5
@@ -198,7 +194,7 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 
 	model = larger_model()
 	# model = cnn_model()
-	history = model.fit(train_X, train_y, epochs=100, batch_size=32, validation_split=0.2,callbacks=callbacks_list, verbose=1)
+	history = model.fit(train_X, train_y, epochs=100, batch_size=32, validation_split=0.2,callbacks=callbacks_list, verbose=2)
 
 	np.savetxt('mlp_loss.csv', history.history['loss'])
 	np.savetxt('mlp_val_loss.csv', history.history['val_loss'])
@@ -219,7 +215,14 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	testr2 = r2_score(testY[0], testPredict[:,0])
 	print('Test Score: %.2f RMSE' % (testScore))
 	print(testr2)
+
+	print('median_absolute_error: %.2f' % median_absolute_error(testY[0], testPredict[:,0]))
+	print('mean value: %.2f' % np.mean(testY[0]))
+	accuracy = 1 - median_absolute_error(testY[0], testPredict[:,0]) / np.mean(testY[0])
+	print('average accuracy: %.2f' % accuracy)
+
 	r += testr2
+	acc += accuracy
 
 	t0 = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
 	# model.save('model/mlp/MLP_model_%s.h5'%t0)
@@ -227,6 +230,7 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	model.summary()
 	
 print(r/5)
+print(acc/5)
 
 # scores = model.evaluate(X, Y, verbose=0)
 # print(model.metrics_names[0])

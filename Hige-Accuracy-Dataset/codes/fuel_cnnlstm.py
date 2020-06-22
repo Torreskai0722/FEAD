@@ -8,7 +8,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, median_absolute_error
 from pandas import read_csv,read_excel
 from keras.models import Sequential
 from keras.layers import Dense, Reshape
@@ -40,9 +40,13 @@ def data_access():
 	# file_fuel_rate = "/Users/torres_kai/Downloads/fuel-dataset-3/0x721_Ins_flow_rate.csv"
 
 	df_location = pd.read_csv(file_localization,index_col=False,usecols=[0,1,2,3],header=0,names = ['F','S','T','G'])
-	# df_location = pd.read_csv(file_localization,index_col=False,header=0)
-	df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,23,24,25,26,27,33,37],names=['time','throttle_position_percent',
-		'engine_torque_percent','driver_demand_engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','combined_vehicle_weight_kg', 'vehicle_speed_mps'])
+	# df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,23,24,25,26,27,33,37],names=['time','throttle_position_percent',
+	# 	'engine_torque_percent','driver_demand_engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','combined_vehicle_weight_kg', 'vehicle_speed_mps'])
+	df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,9,10,24,26,27,30,32,33,37],names=['time','brake_position_percent',
+		'retarder_actual_torque_percent','engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','cur_gear_pos',
+		'clutch_slip_rate_percent','combined_vehicle_weight_kg','vehicle_speed_mps'])
+	# df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,24,26,27,30],names=['time',
+	# 	'engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','cur_gear_pos'])
 	# df_rate = pd.read_csv(file_fuel_rate,index_col=False,header=None,sep='	')
 	df_rate = pd.read_csv(file_fuel_rate,index_col=False,header=None,sep='	',usecols=[0,1],names = ['time','fuel_rate'])
 
@@ -56,29 +60,50 @@ def data_access():
 	y = []
 
 	for i in range(len(df_rate['time'])):
+	# for i in range(90298,842000):
 		t = t0 + df_rate['time'][i]
 		if j >= len(df_vehicle['time']) - 1:
     			break
-		while j < len(df_vehicle['time']) and float(df_vehicle['time'][j])/1000000000 < t:
+		while j < 858400 and float(df_vehicle['time'][j])/1000000000 < t:
     			j = j + 1
-		print(j)
-		print(n)
 
-		throttle_position_percent = float(df_vehicle['throttle_position_percent'][j-1])
+		vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
+		brake_position_percent = float(df_vehicle['brake_position_percent'][j-1])
+		retarder_actual_torque_percent = float(df_vehicle['retarder_actual_torque_percent'][j-1])
+		clutch_slip_rate_percent = float(df_vehicle['clutch_slip_rate_percent'][j-1])
+		combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
+		# throttle_position_percent = float(df_vehicle['throttle_position_percent'][j-1])
 		engine_torque_percent = float(df_vehicle['engine_torque_percent'][j-1])
-		driver_demand_engine_torque_percent = float(df_vehicle['driver_demand_engine_torque_percent'][j-1])
+		# driver_demand_engine_torque_percent = float(df_vehicle['driver_demand_engine_torque_percent'][j-1])
 		engine_torque_loss_percent = float(df_vehicle['engine_torque_loss_percent'][j-1])
 		engine_speed_rpm = float(df_vehicle['engine_speed_rpm'][j-1])
-		combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
-		vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
+		# combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
+		# vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
+		cur_gear_pos = float(df_vehicle['cur_gear_pos'][j-1])
 
 		fuel_rate = float(df_rate['fuel_rate'][i])
 
-		data_ems = [throttle_position_percent,engine_torque_percent,driver_demand_engine_torque_percent,engine_torque_loss_percent,engine_speed_rpm, combined_vehicle_weight_kg, vehicle_speed_mps]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos,vehicle_speed_mps,brake_position_percent,
+		# retarder_actual_torque_percent,clutch_slip_rate_percent,combined_vehicle_weight_kg]
+		data_ems = [engine_speed_rpm,engine_torque_percent,cur_gear_pos,retarder_actual_torque_percent]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos]
 		data_label = [fuel_rate]
+
+		# if fuel_rate == 0:
+		# 	continue
+
+		if j < 90298:
+			continue
+
+		# if vehicle_speed_mps < 11:
+		# 	continue
+		# print(vehicle_speed_mps)
 
 		X.append(data_ems)
 		y.append(data_label)
+
+		# print(i)
+		# print(n)
 
 		# print(t, float(df_vehicle['time'][j-1])/1000000000, t - float(df_vehicle['time'][j-1])/1000000000)
 
@@ -101,7 +126,7 @@ def kfold_load(X,y):
 # define the model
 def lstm_model(trainX,trainY,testX,testY,scaler):
 	model = Sequential()
-	model.add(Dense(100, input_dim=7, kernel_initializer='normal', activation='relu'))
+	model.add(Dense(100, input_dim=4, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
@@ -162,9 +187,16 @@ def lstm_model(trainX,trainY,testX,testY,scaler):
 	print('Test Score: %.2f RMSE' % (testScore))
 	print(testr2)
 
+	print('median_absolute_error: %.2f' % median_absolute_error(testY[0], testPredict[:,0]))
+	print('mean value: %.2f' % np.mean(testY[0]))
+	accuracy = 1 - median_absolute_error(testY[0], testPredict[:,0]) / np.mean(testY[0])
+	print('average accuracy: %.2f' % accuracy)
+
 	t0 = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
 	model.save('model/cnnlstm/CNNLSTM_model_%s+%f.h5'%(t0,testr2))
 	# model.summary()
+
+	return testr2,accuracy
 
 
 X,Y = data_access()
@@ -185,6 +217,9 @@ Y = np.array(Y)
 # print(X.shape)
 # print(X[0])
 
+r = 0
+acc = 0
+
 for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	# trainX, trainY = [],[]
 	# for i in range(len(train_X)-look_back-1):
@@ -202,7 +237,12 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	# testX = np.reshape(test_X,(np.array(test_X).shape[0],2,2,1))
 	# print(trainX.shape)
 	# lstm_model(trainX,trainY,testX,testY,scaler)
-	lstm_model(train_X,train_y,test_X,test_y,scaler)
+	r2, accuracy = lstm_model(train_X,train_y,test_X,test_y,scaler)
+	r += r2
+	acc += accuracy
+
+print(r/5)
+print(acc/5)
 
 # train_size = int(len(X)*0.8)
 # test_size = len(X) - train_size
