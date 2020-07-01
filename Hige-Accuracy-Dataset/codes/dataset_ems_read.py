@@ -1,14 +1,9 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
+#-*- coding: utf-8 -*-
+import csv
+import os
 import pandas as pd
-import pymysql
-import json
-import numpy as np
-from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score, median_absolute_error
-from sklearn.model_selection import KFold
-from dataset_ems_read import data_access_ems
+
 
 def data_access_ems():
 	file_localization = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/localization_result.csv"
@@ -67,9 +62,9 @@ def data_access_ems():
 
 		fuel_rate = float(df_rate['fuel_rate'][i]) * 10
 
-		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos,vehicle_speed_mps,brake_position_percent,
-		# retarder_actual_torque_percent,clutch_slip_rate_percent,combined_vehicle_weight_kg]
-		data_ems = [engine_speed_rpm,engine_torque_percent,cur_gear_pos,retarder_actual_torque_percent]
+		data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos,vehicle_speed_mps,brake_position_percent,
+		retarder_actual_torque_percent,clutch_slip_rate_percent,combined_vehicle_weight_kg]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,cur_gear_pos,retarder_actual_torque_percent]
 		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos]
 		data_label = [fuel_rate]
 
@@ -97,66 +92,9 @@ def data_access_ems():
 
 	return X,y
 
-
-def kfold_load(X,y):
-	n_splits = 5
-	kfold = KFold(n_splits=n_splits, shuffle=False)
-
-	print('KFold = %d :'%n_splits)
-	for train_index, test_index in kfold.split(X, y):
-	    train_X, test_X = X[train_index], X[test_index]
-	    train_y, test_y = y[train_index], y[test_index]
-	    yield train_X, train_y, test_X, test_y
+	# for i in range(len(df_vehicle['publish time'])):
+	#     	print(df_vehicle['publish time'][i])
 
 # X,y = data_access()
-X,y = data_access_ems()
-y = np.squeeze(y)
-
-X = np.array(X)
-Y = np.array(y)
-
-print(X)
-print(Y)
-
-# Split the data into training/testing sets
-# X_train = X[:-10000]
-# X_test = X[-10000:]
-# print(len(X_train))
-# print(len(X_test))
-
-# Split the targets into training/testing sets
-# y_train = y[:-10000]
-# y_test = y[-10000:]
-# print(len(y_train))
-# print(len(y_test))
-
-r = 0
-acc = 0
-
-for train_X, train_y, test_X, test_y in kfold_load(X,y):
-	# Create linear regression object
-	regr = linear_model.LinearRegression()
-
-	# Train the model using the training sets
-	regr.fit(train_X, train_y)
-
-	# Make predictions using the testing set
-	y_pred = regr.predict(test_X)
-
-	# The coefficients
-	print('Coefficients: \n', regr.coef_)
-	# The mean squared error
-	print('Mean squared error: %.2f' % mean_squared_error(test_y, y_pred))
-	# The coefficient of determination: 1 is perfect prediction
-	print('Coefficient of determination: %.2f' % r2_score(test_y, y_pred))
-	r += r2_score(test_y, y_pred)
-
-	print('median_absolute_error: %.2f' % median_absolute_error(test_y, y_pred))
-	print('mean value: %.2f' % np.mean(test_y))
-	accuracy = 1 - median_absolute_error(test_y, y_pred) / np.mean(test_y)
-	print('average accuracy: %.2f' % accuracy)
-
-	acc += accuracy
-
-print(r/5)
-print(acc/5)
+# print(X)
+# print(y)

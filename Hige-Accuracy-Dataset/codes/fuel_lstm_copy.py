@@ -1,31 +1,35 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # Regression Example With Boston Dataset: Baseline
 import pandas as pd
 import pymysql
 import json
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import datasets, linear_model
 from sklearn.metrics import mean_squared_error, r2_score, median_absolute_error
 from pandas import read_csv,read_excel
 from keras.models import Sequential
-from keras.layers import Dense, Reshape, Dropout
+from keras.layers import Dense
+from keras.layers import LSTM, Reshape
+from sklearn.preprocessing import MinMaxScaler
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from keras.callbacks import ModelCheckpoint
+import seaborn as sb
 import math
+from keras.callbacks import ModelCheckpoint
 import time
+from keras.utils import plot_model
+from sklearn.preprocessing import PolynomialFeatures
 from keras.layers import Convolution1D, MaxPooling1D, Flatten
 from keras.layers.wrappers import TimeDistributed
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import PolynomialFeatures
-# from dataset_ems_read import data_access_ems
 
-look_back = 10
+look_back = 25
+epochs = 50
 
 def data_access_ems():
 	file_localization = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/localization_result.csv"
@@ -114,28 +118,7 @@ def data_access_ems():
 
 	return X,y
 
-# define wider model
-def cnn_model():
-	# create model
-	model = Sequential()
-	model.add(Dense(100, input_dim=4,kernel_initializer='normal', activation='relu'))
-	# model.add(Dense(100, input_dim=3*look_back,kernel_initializer='normal', activation='relu'))
-	# model.add(Dropout(0.2))
-	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
-	model.add(Reshape((5,5,4)))
-	model.add(TimeDistributed(Convolution1D(128, 4),input_shape=(4,5,2)))
-	model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
-	model.add(TimeDistributed(Flatten()))
-	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
-	model.add(Dense(50, kernel_initializer='normal', activation='relu'))
-	model.add(Flatten())
-	model.add(Dense(1))
-	# Compile model
-	model.compile(loss='mean_squared_error', optimizer='adam')
-	return model
+
 
 def kfold_load(X,y):
 	n_splits = 5
@@ -147,72 +130,61 @@ def kfold_load(X,y):
 	    train_y, test_y = y[train_index], y[test_index]
 	    yield train_X, train_y, test_X, test_y
 
-# load dataset
-# dataframe = read_excel("housing.xlsx", delim_whitespace=True, header=None)
-# dataset = dataframe.values
-# split into input (X) and output (Y) variables
-# X = dataset[:,0:13]
-# Y = dataset[:,13]
-# X,Y = data_access()
-X,Y = data_access_ems()
 
-scaler =  StandardScaler()
-# scaler = MinMaxScaler(feature_range=(0,1))
-X = scaler.fit_transform(X)
-Y = scaler.fit_transform(Y)
+# define the model
+def lstm_model(trainX,trainY,testX,testY,scaler):
+	# create and fit the LSTM network
+	model = Sequential()
+	model.add(LSTM(100, input_shape=(look_back,4),dropout=0.2,return_sequences=True))
+	model.add(LSTM(100,return_sequences=True,dropout=0.2))
+	model.add(LSTM(100,return_sequences=True,dropout=0.2))
+	# model.add(Reshape((5,4,4)))
+	# model.add(TimeDistributed(Convolution1D(128, 4)))
+	# model.add(TimeDistributed(MaxPooling1D(pool_size=2)))
+	# model.add(TimeDistributed(Flatten()))
+	model.add(LSTM(50,return_sequences=False))
+	# model.add(Dense(40, kernel_initializer='normal', activation='relu'))
+	# model.add(Dense(20, kernel_initializer='normal', activation='relu'))
+	# model.add(Dense(20, kernel_initializer='normal', activation='relu'))
+	# model.add(Dense(10, kernel_initializer='normal'))
+	model.add(Dense(1))
+	model.compile(loss='mean_squared_error', optimizer='adam')
 
-Y = np.squeeze(Y)
-# print(X)
-# print(Y)
+	# checkpoint
+	filepath="adam-weights.best.hdf5"
+	checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+	callbacks_list = [checkpoint]
 
-X = np.array(X)
-Y = np.array(Y)
+	history = model.fit(trainX, trainY, epochs=epochs, batch_size=32,validation_split=0.1, verbose=1,callbacks=callbacks_list)
 
-# n = 5
-# poly = PolynomialFeatures(n)# returns: [1, x, x^2, x^3]
-# X = poly.fit_transform(X)
-# print(X.shape)
-# print(X[0])
+	np.savetxt('lstm_loss.csv', history.history['loss'])
+	np.savetxt('lstm_val_loss.csv', history.history['val_loss'])
 
-# checkpoint
-filepath="mlp-weights.best.hdf5"
-checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-callbacks_list = [checkpoint]
+	# Plot training & validation loss values
+	# plt.plot(history.history['loss'])
+	# plt.plot(history.history['val_loss'])
+	# plt.title('Model loss')
+	# plt.ylabel('Loss')
+	# plt.xlabel('Epoch')
+	# plt.legend(['Train', 'Test'], loc='upper left')
+	# plt.show()
 
-r = 0
-acc = 0
+	# model.fit(trainX, trainY, epochs=epochs, batch_size=20, verbose=1)
 
-for train_X, train_y, test_X, test_y in kfold_load(X,Y):
+	# evaluate larger model
+	# estimators = []
+	# estimators.append(('standardize', StandardScaler()))
+	# estimators.append(('lstm', KerasRegressor(build_fn=larger_model, epochs=100, batch_size=70, verbose=1)))
+	# pipeline = Pipeline(estimators)
+	# kfold = KFold(n_splits=10)
+	# results = np.sqrt(-cross_val_score(pipeline, X, Y, cv=kfold,scoring='neg_mean_squared_error')).mean()
+	# r2 = cross_val_score(pipeline, X, Y, cv=kfold,scoring='r2').mean()
+	# print(results)
+	# print(r2)
 
-	trainX, trainY = [],[]
-	# for i in range(len(train_X)-look_back-1):
-	# 	a = train_X[i:(i+look_back),:]
-	# 	trainX.append(a)
-	# 	trainY.append(train_y[i+look_back])
 
-	testX, testY = [],[]
-	# for i in range(len(test_X)-look_back-1):
-	# 	a = test_X[i:(i+look_back),:]
-	# 	testX.append(a)
-	# 	testY.append(test_y[i+look_back])
-	# print(np.array(trainX).shape)
-	# trainX = np.reshape(trainX,(np.array(trainX).shape[0],np.array(trainX).shape[2]*np.array(trainX).shape[1]))
-	# testX = np.reshape(testX,(np.array(testX).shape[0],np.array(testX).shape[2]*np.array(testX).shape[1]))
-
-	# print(trainX)
-	# print(testX)
-	trainX = train_X
-	trainY = train_y
-	testX = test_X
-	testY = test_y
-
-	model = cnn_model()
-	# model = cnn_model()
-	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_split=0.1,callbacks=callbacks_list, verbose=1)
-
-	np.savetxt('cnn_loss.csv', history.history['loss'])
-	np.savetxt('cnn_val_loss.csv', history.history['val_loss'])
-
+	# model.load_weights("adam-weights.best.hdf5")
+	# make predictions
 	trainPredict = model.predict(trainX)
 	testPredict = model.predict(testX)
 	# invert predictions
@@ -220,10 +192,6 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	trainY = scaler.inverse_transform([trainY])
 	testPredict = scaler.inverse_transform(testPredict)
 	testY = scaler.inverse_transform([testY])
-
-	print(trainY)
-	print(trainPredict)
-
 	# calculate root mean squared error
 	trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:,0]))
 	trainr2 = r2_score(trainY[0], trainPredict[:,0])
@@ -239,63 +207,87 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	accuracy = 1 - median_absolute_error(testY[0], testPredict[:,0]) / np.mean(testY[0])
 	print('average accuracy: %.2f' % accuracy)
 
-	r += testr2
+	t0 = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+	model.save('model/lstm/LSTM_model_%s+%f.h5'%(t0,testr2))
+	plot_model(model, to_file='lstm-model.png')
+	model.summary()
+
+	return testr2,accuracy
+
+
+X,Y = data_access_ems()
+print("LSTM L2 G3 without")
+print("load data success")
+X = np.array(X)
+print(np.var(X))
+print(np.mean(X))
+
+# Plot training & validation loss values
+# plt.plot(X)
+# plt.plot(Y)
+# plt.title('Fuel Consumption Analysis')
+# plt.ylabel('Fule rate')
+# plt.xlabel('Time')
+# plt.legend(['X', 'Y'], loc='upper right')
+# plt.show()
+
+scaler =  StandardScaler()
+# scaler = MinMaxScaler(feature_range=(0,1))
+X = scaler.fit_transform(X)
+Y = scaler.fit_transform(Y)
+
+Y = np.squeeze(Y)
+
+X = np.array(X)
+Y = np.array(Y)
+# print(X[0:5])
+
+# n = 5
+# poly = PolynomialFeatures(n)# returns: [1, x, x^2, x^3]
+# X = poly.fit_transform(X)
+# print(X.shape)
+
+# trainX, trainY = [],[]
+# for i in range(len(train_X)-look_back-1):
+# 	a = train_X[i:(i+look_back),:]
+# 	trainX.append(a)
+# 	trainY.append(train_y[i+look_back])
+
+# testX, testY = [],[]
+# for i in range(len(test_X)-look_back-1):
+# 	a = test_X[i:(i+look_back),:]
+# 	testX.append(a)
+# 	testY.append(test_y[i+look_back])
+
+# print(np.array(trainX).shape)
+# trainX = np.reshape(trainX,(np.array(trainX).shape[0],np.array(trainX).shape[1],look_back))
+# testX = np.reshape(testX,(np.array(testX).shape[0],np.array(testX).shape[1],look_back))
+# lstm_model(trainX,trainY,testX,testY,scaler)
+
+r = 0
+acc = 0
+
+for train_X, train_y, test_X, test_y in kfold_load(X,Y):
+	trainX, trainY = [],[]
+	for i in range(len(train_X)-look_back-1):
+		a = train_X[i:(i+look_back),:]
+		trainX.append(a)
+		trainY.append(train_y[i+look_back])
+
+	testX, testY = [],[]
+	for i in range(len(test_X)-look_back-1):
+		a = test_X[i:(i+look_back),:]
+		testX.append(a)
+		testY.append(test_y[i+look_back])
+
+	print(np.array(trainX).shape)
+	trainX = np.reshape(trainX,(np.array(trainX).shape[0],look_back,np.array(trainX).shape[2]))
+	# print(trainX[1],trainX[2])
+	# print(trainY[1],trainY[2])
+	testX = np.reshape(testX,(np.array(testX).shape[0],look_back,np.array(testX).shape[2]))
+	r2,accuracy = lstm_model(trainX,trainY,testX,testY,scaler)
+	r += r2
 	acc += accuracy
 
-	t0 = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
-	# model.save('model/mlp/MLP_model_%s.h5'%t0)
-	model.save('model/cnn/CNN_model_%s+%f.h5'%(t0,testr2))
-	# model.summary()
-	# plt.plot(testY[0][:1000])
-	# plt.plot(testPredict[:1000,0],color="red")
-	# plt.show()
-
-print("CNN G3 without")
 print(r/5)
 print(acc/5)
-
-# scores = model.evaluate(X, Y, verbose=0)
-# print(model.metrics_names[0])
-# print(str(scores))
-# print("%s: %.2f%%" % (model.metrics_names[0], scores[0]*100))
-
-# evaluate model
-# estimator = KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=20, verbose=1)
-# kfold = KFold(n_splits=10)
-# results = np.sqrt(-cross_val_score(estimator, X, Y, cv=kfold,scoring='neg_mean_squared_error')).mean()
-# r2 = cross_val_score(estimator, X, Y, cv=kfold,scoring='r2').mean()
-# print(results)
-# print(r2)
-
-# evaluate model with standardized dataset
-# estimators = []
-# estimators.append(('standardize', StandardScaler()))
-# estimators.append(('mlp', KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=20, verbose=1)))
-# pipeline = Pipeline(estimators)
-# kfold = KFold(n_splits=10)
-# results = np.sqrt(-cross_val_score(pipeline, X, Y, cv=kfold,scoring='neg_mean_squared_error')).mean()
-# r2 = cross_val_score(pipeline, X, Y, cv=kfold,scoring='r2').mean()
-# print(results)
-# print(r2)
-
-# evaluate larger model
-# estimators = []
-# estimators.append(('standardize', StandardScaler()))
-# estimators.append(('mlp', KerasRegressor(build_fn=larger_model, epochs=100, batch_size=20, verbose=1)))
-# pipeline = Pipeline(estimators)
-# kfold = KFold(n_splits=10)
-# results = np.sqrt(-cross_val_score(pipeline, X, Y, cv=kfold,scoring='neg_mean_squared_error')).mean()
-# r2 = cross_val_score(pipeline, X, Y, cv=kfold,scoring='r2').mean()
-# print(results)
-# print(r2)
-
-# evaluate wider model
-# estimators = []
-# estimators.append(('standardize', StandardScaler()))
-# estimators.append(('mlp', KerasRegressor(build_fn=wider_model, epochs=100, batch_size=5, verbose=0)))
-# pipeline = Pipeline(estimators)
-# kfold = KFold(n_splits=10)
-# results = np.sqrt(-cross_val_score(pipeline, X, Y, cv=kfold,scoring='neg_mean_squared_error')).mean()
-# r2 = cross_val_score(pipeline, X, Y, cv=kfold,scoring='r2').mean()
-# print(results)
-# print(r2)
