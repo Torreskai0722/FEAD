@@ -46,5 +46,6 @@ median_absolute_error: 221.13
 mean value: 254.87
 average accuracy: 0.13
 
-Overall average R2: 0.11459011114477011
-Overall average accuracy: 0.4178278821863925
+**Overall average R2**: 0.11459011114477011
+
+**Overall average accuracy**: 0.4178278821863925
