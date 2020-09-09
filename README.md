@@ -9,7 +9,7 @@ Fuel efficient autonomous driving project
 
 ## 09/09/2020
 ### publication avenue
- - transportation: IEEE ITS, IV, ...
+ - transportation: IEEE TITS, IV, TRB
  - robotics: ICRA, IROS
  - others: MetroCAD ??
 ### experiments
