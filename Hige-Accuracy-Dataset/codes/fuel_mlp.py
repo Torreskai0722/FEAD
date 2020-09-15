@@ -30,26 +30,26 @@ look_back = 4
 def data_access_ems():
 	file_localization = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/localization_result.csv"
 	file_vehicle_report = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/vehicle_report.csv"
-	# file_fuel_rate = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/0x721_Ins_flow_rate.csv"
-	file_ems_fuel = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/0x18fef2fe_EngFuelRate.csv"
+	file_fuel_rate = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/0x721_Ins_flow_rate.csv"
+	# file_ems_fuel = "/home/edge22/projects/fuel efficiency/Fuel-dataset-3/0x18fef2fe_EngFuelRate.csv"
 
 	# file_localization = "/Users/torres_kai/Downloads/fuel-dataset-3/localization_result.csv"
 	# file_vehicle_report = "/Users/torres_kai/Downloads/fuel-dataset-3/vehicle_report.csv"
 	# file_fuel_rate = "/Users/torres_kai/Downloads/fuel-dataset-3/0x721_Ins_flow_rate.csv"
 
-	df_ems_rate = pd.read_csv(file_ems_fuel,index_col=False,header=None,sep='	')
-	print(df_ems_rate)
+	# df_ems_rate = pd.read_csv(file_ems_fuel,index_col=False,header=None,sep='	')
+	# print(df_ems_rate)
 
 	df_location = pd.read_csv(file_localization,index_col=False,usecols=[0,1,2,3],header=0,names = ['F','S','T','G'])
 	# df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,23,24,25,26,27,33,37],names=['time','throttle_position_percent',
 	# 	'engine_torque_percent','driver_demand_engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','combined_vehicle_weight_kg', 'vehicle_speed_mps'])
-	df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,9,10,24,26,27,30,32,33,37],names=['time','brake_position_percent',
+	df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,9,10,24,26,27,30,32,33,37,39,40],names=['time','brake_position_percent',
 		'retarder_actual_torque_percent','engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','cur_gear_pos',
-		'clutch_slip_rate_percent','combined_vehicle_weight_kg','vehicle_speed_mps'])
+		'clutch_slip_rate_percent','combined_vehicle_weight_kg','vehicle_speed_mps','longitudinal_acceleration_mpss','lateral_acceleration_mpss'])
 	# df_vehicle = pd.read_csv(file_vehicle_report,index_col=False,usecols=[0,24,26,27,30],names=['time',
 	# 	'engine_torque_percent','engine_torque_loss_percent','engine_speed_rpm','cur_gear_pos'])
-	df_rate = pd.read_csv(file_ems_fuel,index_col=False,header=None,sep='	',usecols=[0,1],names = ['time','fuel_rate'])
-	# df_rate = pd.read_csv(file_fuel_rate,index_col=False,header=None,sep='	',usecols=[0,1],names = ['time','fuel_rate'])
+	# df_rate = pd.read_csv(file_ems_fuel,index_col=False,header=None,sep='	',usecols=[0,1],names = ['time','fuel_rate'])
+	df_rate = pd.read_csv(file_fuel_rate,index_col=False,header=None,sep='	',usecols=[0,1],names = ['time','fuel_rate'])
 
 	# print(df_rate)
 	# print(len(df_vehicle['time']))
@@ -81,19 +81,24 @@ def data_access_ems():
 		# combined_vehicle_weight_kg = float(df_vehicle['combined_vehicle_weight_kg'][j-1])
 		# vehicle_speed_mps = float(df_vehicle['vehicle_speed_mps'][j-1])
 		cur_gear_pos = float(df_vehicle['cur_gear_pos'][j-1])
+		longitudinal_acceleration_mpss = float(df_vehicle['longitudinal_acceleration_mpss'][j-1])
+		lateral_acceleration_mpss = float(df_vehicle['lateral_acceleration_mpss'][j-1])
 
-		fuel_rate = float(df_rate['fuel_rate'][i]) * 10
+		# fuel_rate = float(df_rate['fuel_rate'][i]) * 10
+		fuel_rate = float(df_rate['fuel_rate'][i])
 
 		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos,vehicle_speed_mps,brake_position_percent,
-		# retarder_actual_torque_percent,clutch_slip_rate_percent,combined_vehicle_weight_kg]
-		data_ems = [engine_speed_rpm,engine_torque_percent,cur_gear_pos,retarder_actual_torque_percent]
+		# retarder_actual_torque_percent,clutch_slip_rate_percent,combined_vehicle_weight_kg,lateral_acceleration_mpss]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,cur_gear_pos,retarder_actual_torque_percent]
 		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos]
+		# data_ems = [engine_speed_rpm,engine_torque_percent,engine_torque_loss_percent,cur_gear_pos,lateral_acceleration_mpss]
+		data_ems = [vehicle_speed_mps,lateral_acceleration_mpss,longitudinal_acceleration_mpss]
 		data_label = [fuel_rate]
 
 		# if fuel_rate == 0:
 		# 	continue
 
-		if j < 90298:
+		if j < 90298 or j > 825000:
 			continue
 		# print(data_ems)
 		# print(data_label)
@@ -118,7 +123,7 @@ def data_access_ems():
 def larger_model():
 	# create model
 	model = Sequential()
-	model.add(Dense(100, input_dim=4, kernel_initializer='normal', activation='relu'))
+	model.add(Dense(100, input_dim=3, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
 	model.add(Dense(100, kernel_initializer='normal', activation='relu'))
@@ -237,7 +242,7 @@ for train_X, train_y, test_X, test_y in kfold_load(X,Y):
 	model.save('model/mlp/MLP_model_%s+%f.h5'%(t0,testr2))
 	model.summary()
 
-print("MLP G3 without")
+print("MLP G5-L1 without")
 print(r/5)
 print(acc/5)
 
