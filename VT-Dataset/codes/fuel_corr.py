@@ -22,13 +22,13 @@ from sklearn.pipeline import Pipeline
 import seaborn as sb
 import math
 
-def data_access():
+def data_access(path):
 
-	file_vehicle_1 = "/home/edge22/projects/fuel efficiency/VT-dataset/veh001_all.csv"
+	# file_vehicle_1 = "../veh001_all.csv"
 	# file_vehicle_2 = "/home/edge22/projects/fuel efficiency/VT-dataset/veh001_all.csv"
 	# file_vehicle_3 = "/home/edge22/projects/fuel efficiency/VT-dataset/veh001_all.csv"
 
-	df_data = pd.read_csv(file_vehicle_1,index_col=False,usecols=[0,1,2,3,4,5,6,7,8],header=0,names=['CO2', 'CO', 'HC', 'NOx', 'vel','fuel', 'engine', 'elevation', 'phase_num'])
+	df_data = pd.read_csv(path,index_col=False,usecols=[0,1,2,3,4,5,6,7,8],header=0,names=['CO2', 'CO', 'HC', 'NOx', 'vel','fuel', 'engine', 'elevation', 'phase_num'])
 
 	print(df_data)
 
@@ -45,8 +45,8 @@ def data_access():
 		elevation = float(df_data['elevation'][i])
 		phase_num = float(df_data['phase_num'][i])
 
-		# data_features = [CO2,CO,HC,NOx,vel,engine,elevation,phase_num]
-		data_features = [CO2,CO,HC,NOx,vel,engine]
+		data_features = [CO2,CO,HC,NOx,vel,engine,elevation,phase_num]
+		# data_features = [CO2,CO,HC,NOx,vel,engine]
 
 		fuel = float(df_data['fuel'][i])
 		data_label = [fuel]
@@ -58,21 +58,28 @@ def data_access():
 
 	return X,y
 
+paths = ["../veh001_all.csv","../veh002_all.csv","../veh003_all.csv"]
 
-X,Y = data_access()
-# print(X)
-scaler =  StandardScaler()
-# scaler = MinMaxScaler(feature_range=(0,1))
-X = scaler.fit_transform(X)
-Y = scaler.fit_transform(Y)
+VT_data = []
+for path in paths:
+    X,Y = data_access(path)
+    scaler =  StandardScaler()
+	# scaler = MinMaxScaler(feature_range=(0,1))
+    X = scaler.fit_transform(X)
+    Y = scaler.fit_transform(Y)
 
-Z = np.hstack((X,Y))
+    Z = np.hstack((X,Y))
 
-#C_mat = np.cov(Z)
-C_mat = np.corrcoef(Z.T)
+	#C_mat = np.cov(Z)
+    C_mat = np.corrcoef(Z.T)
+    print(C_mat[8])
+    VT_data.append(C_mat[8])
+
+VT_data = np.array(VT_data).transpose()
+df_C_mat = pd.DataFrame(data=VT_data,columns=['vehicle-1','vehicle-2','vehicle-3'],index=['CO2','CO','HC','NOx','vel','engine','elevation','phase_num','fuel'])
 # print(C_mat.shape)
-print(C_mat)
-fig = plt.figure(figsize = (8,8))
+# print(C_mat)
+fig = plt.figure(figsize = (4,10))
 
-sb.heatmap(C_mat, vmax = 1, square = True,annot=True)
+sb.heatmap(df_C_mat, vmax = 1, square = True,annot=True,cbar=False)
 plt.show()
