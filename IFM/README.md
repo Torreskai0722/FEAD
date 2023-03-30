@@ -1,1 +1,1 @@
-This folder contains the codes, logs, and report of the manually collected dataset.
+This folder contains the code for fuel rate prediction on the IFM dataset.
