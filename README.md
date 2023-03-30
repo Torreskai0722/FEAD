@@ -8,7 +8,7 @@ The dataset includes sensor data from heavy-duty trucks, which can be used for f
 
 ## FEAD Dataset Description
 
-![Hardware](hardware.png)
+![Hardware](imgs/hardware.png)
 
 The FEAD dataset is collected through Engine Management System (**EMS**) and Instant Fuel Meter (**IFM**) devices. We choose an off-the-shelf CAN bus parser to read fuel consumption from truck's EMS with 10mL measurement resolution and 6.1% - 6.5% error. Regarding the IFM, which provides more accurate fuel measurement, we use [Onosokki's FP-2140H](https://www.onosokki.co.jp/HP-WK/products/keisoku/vehicle/fp\_series.html) fuel meter with 0.1mL measurement resolution and 0.2% error.
 
