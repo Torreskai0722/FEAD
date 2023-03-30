@@ -12,16 +12,15 @@ The dataset includes sensor data from heavy-duty trucks, which can be used for f
 
 The FEAD dataset is collected through Engine Management System (**EMS**) and Instant Fuel Meter (**IFM**) devices. We choose an off-the-shelf CAN bus parser to read fuel consumption from truck's EMS with 10mL measurement resolution and 6.1% - 6.5% error. Regarding the IFM, which provides more accurate fuel measurement, we use [Onosokki's FP-2140H](https://www.onosokki.co.jp/HP-WK/products/keisoku/vehicle/fp\_series.html) fuel meter with 0.1mL measurement resolution and 0.2% error.
 
-
-
 The dataset consists of the following data:
 
-- GPS data (latitude, longitude, and speed)
-- Engine parameters (RPM, coolant temperature, intake manifold pressure, and more)
-- Environmental data (temperature, humidity, and wind speed)
-- Vehicle data (weight, type, and model)
+- Engine’s status information (engine speed, torque, throttle, fuel rate, etc.) for every 100 milliseconds
+- Context information:
+  - the truck’s location (province, city, longitude, latitude, etc.)
+  - road level (freeway, highway, urban, etc.)
+  - truck’s information (vehicle ID, model, etc.)
 
-The data is collected from multiple heavy-duty trucks during different driving conditions and environments.
+The data is collected from multiple heavy-duty trucks during different driving conditions and environments. Please refer to the paper for more details.
 
 | **Name**        | **Time** | **Trucks** | **Rows**   | **Features**                                                                   | **Download** |
 | :-------------: | :------: | :--------: | :--------: | :-----------------------------------------------------------------------------: | :----------: |
