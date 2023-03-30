@@ -2,11 +2,15 @@
 
 This repository contains the open-source dataset used in the paper:
 
-> Liangkai Liu, Wei Li, Dawei Wang, Yi Wu, Ruigang Yang, and Weisong Shi, Fuel Rate Prediction for Heavy-Duty Trucks, accepted to IEEE Transactions on Intelligent Transportation Systems, March 2023.
+> Liangkai Liu, Wei Li, Dawei Wang, Yi Wu, Ruigang Yang, and Weisong Shi, [Fuel Rate Prediction for Heavy-Duty Trucks](https://www.weisongshi.org/papers/liu23-fuel.pdf), accepted to IEEE Transactions on Intelligent Transportation Systems, March 2023.
 
 The dataset includes sensor data from heavy-duty trucks, which can be used for fuel rate prediction and other research purposes.
 
-## Dataset Description
+## FEAD Dataset Description
+
+The FEAD dataset is collected through Engine Management System (EMS) and Instant Fuel Meter (IFM) devices. We choose an off-the-shelf CAN bus parser to read fuel consumption from truck's EMS with 10mL measurement resolution and 6.1% - 6.5% error. Regarding the IFM, which provides more accurate fuel measurement, we use [Onosokki's FP-2140H](https://www.onosokki.co.jp/HP-WK/products/keisoku/vehicle/fp\_series.html) fuel meter with 0.1mL measurement resolution and 0.2% error.
+
+![Drag Racing](hardware.png)
 
 The dataset consists of the following data:
 
@@ -26,8 +30,6 @@ The data is collected from multiple heavy-duty trucks during different driving c
 ## Citation
 
 If you use this dataset in your research, please cite the following paper:
-
-### BibTeX
 
 ```bibtex
 @article{liu2023fuel,
