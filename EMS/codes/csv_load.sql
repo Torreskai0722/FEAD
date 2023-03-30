@@ -23,11 +23,11 @@
 --     PRIMARY KEY (rowkey)
 -- );
 
-LOAD DATA INFILE 'dwa_inceptio_ems_detail_location_manual.csv' 
-INTO TABLE emsdata 
-FIELDS TERMINATED BY '	' 
-ENCLOSED BY '"'
-LINES TERMINATED BY '\n';
+-- LOAD DATA INFILE 'dwa_inceptio_ems_detail_location_manual.csv' 
+-- INTO TABLE emsdata 
+-- FIELDS TERMINATED BY '	' 
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n';
 
 -- use fuel_efficiency_new;
 -- CREATE TABLE emsdata (
@@ -126,13 +126,13 @@ LINES TERMINATED BY '\n';
 -- ENCLOSED BY '"'
 -- LINES TERMINATED BY '\n';
 
-use fuel_efficiency_new;
--- LOAD DATA INFILE 'dwa_inceptio_ems_detail_location_manual.csv'
-LOAD DATA INFILE 'ems_yingche_20200411.txt'
-INTO TABLE emsdata_3 
-FIELDS TERMINATED BY '	' 
-ENCLOSED BY '"'
-LINES TERMINATED BY '\n';
+-- use fuel_efficiency_new;
+-- -- LOAD DATA INFILE 'dwa_inceptio_ems_detail_location_manual.csv'
+-- LOAD DATA INFILE 'ems_yingche_20200411.txt'
+-- INTO TABLE emsdata_3 
+-- FIELDS TERMINATED BY '	' 
+-- ENCLOSED BY '"'
+-- LINES TERMINATED BY '\n';
 
 -- use fuel_efficiency_new;
 -- -- LOAD DATA INFILE 'dwa_inceptio_ems_detail_location_manual.csv'
