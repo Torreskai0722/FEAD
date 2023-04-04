@@ -82,33 +82,6 @@ for i in range(len(b.index)):
 	X.append(data_ems)
 	y.append(data_label)
 
-# 读取csv数据
-# pd.read_csv()
-
-# 读取excel数据
-# xls = pd.ExcelFile(book_name_vvid)
-# df1 = pd.read_excel(xls, sheet_name_date)
-# X = np.array(df1)
-# df2 = pd.read_excel(xls, sheet_name_label)
-# y = np.array(df2)
-# tt = pd.read_excel('257C0D741E2CDDAFDA1A297FC5AC9964.xlsx')
-# WS_np = np.array(tt)
-# print(tt)
-
-# 读取txt数据
-#pd.read_table()
-
-# VVID								License Plate	Days
-# 3CCC005122531737E69EA3BA21324ECD 	粤ABP691			1:4, 6:31
-# A0A4A31F4C3509655240D8D7DB9CD389	闽K59769			1:4, 6:31
-# 83E94E04A08895767DFE0D80A21A07D3 	闽K59938			1:4, 6:31
-# B45F36E3944670E22C7EC735D833F709	粤ADW293			27:31
-# 7571522FF0EBA036818CEACBA52D3B60 	粤ADS670			28:31
-# 096B3BBA5216C10C7EDF72FD803ACFD7 	粤ADP980			3:4, 9:31
-# 3EF3F915B5831AE8667B6FC54FBA89B7 	闽K55572			1:4, 6:31
-# CABB5C23A2B5E1541DB6E75FD1D61E01 	粤ABW222			1:4, 6:31
-# 257C0D741E2CDDAFDA1A297FC5AC9964	闽K59936			1:4, 6:31
-
 def kfold_load(X,y):
 	n_splits = 5
 	kfold = KFold(n_splits=n_splits, shuffle=False)
