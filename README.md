@@ -15,7 +15,6 @@ The FEAD dataset is collected through Engine Management System (**EMS**) and Ins
 The dataset consists of the following data:
 
 - Engine’s status information (engine speed, torque, throttle, fuel rate, etc.) for every 100 milliseconds
-- Truck’s information (vehicle ID, model, etc.)
 
 The data is collected from multiple heavy-duty trucks during different driving conditions and environments. Please refer to the paper for more details.
 
