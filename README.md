@@ -28,8 +28,6 @@ The data is collected from multiple heavy-duty trucks during different driving c
 | EMS dataset-2 | 04/2020  | 29         | 26,145,539 | EMS engine data, latitude, longitude, triggertime, city, road level, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
 | IFM dataset   | 06/2020  | 1          | 872,844    | IFM engine data                                                                 | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
 
-
-
 ## Citation
 
 If you use this dataset in your research, please cite the following paper:
