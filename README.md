@@ -15,17 +15,14 @@ The FEAD dataset is collected through Engine Management System (**EMS**) and Ins
 The dataset consists of the following data:
 
 - Engine’s status information (engine speed, torque, throttle, fuel rate, etc.) for every 100 milliseconds
-- Context information:
-  - the truck’s location (province, city, longitude, latitude, etc.)
-  - road level (freeway, highway, urban, etc.)
-  - truck’s information (vehicle ID, model, etc.)
+- Truck’s information (vehicle ID, model, etc.)
 
 The data is collected from multiple heavy-duty trucks during different driving conditions and environments. Please refer to the paper for more details.
 
 | **Name**        | **Time** | **Trucks** | **Rows**   | **Features**                                                                   | **Download** |
 | :-------------: | :------: | :--------: | :--------: | :-----------------------------------------------------------------------------: | :----------: |
-| EMS dataset-1 | 12/2019  | 9          | 10,273,969 | EMS engine data, latitude, longitude, triggertime, city, road level, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
-| EMS dataset-2 | 04/2020  | 29         | 26,145,539 | EMS engine data, latitude, longitude, triggertime, city, road level, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
+| EMS dataset-1 | 12/2019  | 9          | 10,273,969 | EMS engine data, triggertime, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
+| EMS dataset-2 | 04/2020  | 29         | 26,145,539 | EMS engine data, triggertime, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
 | IFM dataset   | 06/2020  | 1          | 872,844    | IFM engine data                                                                 | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
 
 ## Citation
