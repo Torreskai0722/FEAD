@@ -37,7 +37,7 @@ def load_data():
 	 )
 
 	#sql语句
-	# sqlcmd="SELECT ems_value,triggertime,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') and (city = '永州市')"
+	# sqlcmd="SELECT ems_value,triggertime FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') and (city = '永州市')"
 	sqlcmd1="SELECT truckid FROM emsdata_2 group by truckid"
 	# sqlcmd2="SELECT tdate FROM emsdata_2 group by tdate"
 	# sqlcmd2 = "select tdate FROM emsdata where (truckid = 'CABB5C23A2B5E1541DB6E75FD1D61E01') and (city = '桂林市') group by tdate"

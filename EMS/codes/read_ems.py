@@ -37,7 +37,7 @@ dbconn=pymysql.connect(
  )
 
 #sql语句
-sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (tdate = '20191201')"
+sqlcmd="SELECT ems_value FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (tdate = '20191201')"
 
 #利用pandas 模块导入mysql数据
 a=pd.read_sql(sqlcmd,dbconn)

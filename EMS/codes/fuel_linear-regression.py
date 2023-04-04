@@ -41,9 +41,9 @@ dbconn=pymysql.connect(
  )
 
 #sql语句
-# sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (county = '青羊区')"
-# sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = 'CABB5C23A2B5E1541DB6E75FD1D61E01')"
-sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND ((tdate = '20191204') or (tdate = '20191209') or (tdate = '20191219') or (tdate = '20191224') or (tdate = '20191228'))"
+# sqlcmd="SELECT ems_value FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (county = '青羊区')"
+# sqlcmd="SELECT ems_value FROM emsdata where (truckid = 'CABB5C23A2B5E1541DB6E75FD1D61E01')"
+sqlcmd="SELECT ems_value FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND ((tdate = '20191204') or (tdate = '20191209') or (tdate = '20191219') or (tdate = '20191224') or (tdate = '20191228'))"
 
 #利用pandas 模块导入mysql数据
 a=pd.read_sql(sqlcmd,dbconn)

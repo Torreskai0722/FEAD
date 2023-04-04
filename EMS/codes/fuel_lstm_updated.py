@@ -43,8 +43,8 @@ def load_emsdata(da):
 	)
 
 	#sql语句
-	# sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND ((tdate = '20191204') or (tdate = '20191209') or (tdate = '20191219') or (tdate = '20191224') or (tdate = '20191228'))"
-	sqlcmd="SELECT ems_value,lat,lng,triggertime FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND (tdate = %s)" % da
+	# sqlcmd="SELECT ems_value FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND ((tdate = '20191204') or (tdate = '20191209') or (tdate = '20191219') or (tdate = '20191224') or (tdate = '20191228'))"
+	sqlcmd="SELECT ems_value,triggertime FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND (tdate = %s)" % da
 	#利用pandas 模块导入mysql数据
 	a=pd.read_sql(sqlcmd,dbconn)
 

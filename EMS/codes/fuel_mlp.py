@@ -38,14 +38,14 @@ def load_emsdata():
 	 )
 
 	#sql语句
-	# sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = 'CABB5C23A2B5E1541DB6E75FD1D61E01') AND (tdate = '20191201') AND (city = '怀化市')"
-	# sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND ((tdate = '20191204') or (tdate = '20191209') or (tdate = '20191219') or (tdate = '20191224') or (tdate = '20191228'))"
-	sqlcmd="SELECT ems_value,lat,lng FROM emsdata_2 where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '重庆市') AND ((tdate = '20200405') or (tdate = '20200411') or (tdate = '20200412') or (tdate = '20200417'))"
-	# sqlcmd="SELECT ems_value,lat,lng FROM emsdata_2 where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '重庆市')"
+	# sqlcmd="SELECT ems_value FROM emsdata where (truckid = 'CABB5C23A2B5E1541DB6E75FD1D61E01') AND (tdate = '20191201') AND (city = '怀化市')"
+	# sqlcmd="SELECT ems_value FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '永州市') AND ((tdate = '20191204') or (tdate = '20191209') or (tdate = '20191219') or (tdate = '20191224') or (tdate = '20191228'))"
+	sqlcmd="SELECT ems_value FROM emsdata_2 where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '重庆市') AND ((tdate = '20200405') or (tdate = '20200411') or (tdate = '20200412') or (tdate = '20200417'))"
+	# sqlcmd="SELECT ems_value FROM emsdata_2 where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (city = '重庆市')"
 	# sqlcmd="SELECT ems_value,torque FROM emsdata_2 where (truckid = '107624CE6B76B627818179C74FF206CF') AND (city = '衡阳市') AND ((tdate = '20200403') or (tdate = '20200406') or (tdate = '20200410') or (tdate = '20200413') or (tdate = '20200416') or (tdate = '20200419'))"
 	# sqlcmd="SELECT ems_value,torque FROM emsdata_2 where (truckid = '107624CE6B76B627818179C74FF206CF') AND (city = '湘潭市') AND ((tdate = '20200404') or (tdate = '20200408') or (tdate = '20200412') or (tdate = '20200414') or (tdate = '20200417'))"
 	# sqlcmd="SELECT ems_value,torque FROM emsdata_2 where (truckid = '107EF28DD023DD7F50AEDA9CA033325B') AND (city = '荆州市') AND ((tdate = '20200403') or (tdate = '20200407') or (tdate = '20200415') or (tdate = '20200419'))"
-	# sqlcmd="SELECT ems_value,lat,lng FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (county = '青羊区')"
+	# sqlcmd="SELECT ems_value FROM emsdata where (truckid = '257C0D741E2CDDAFDA1A297FC5AC9964') AND (county = '青羊区')"
 
 	#利用pandas 模块导入mysql数据
 	a=pd.read_sql(sqlcmd,dbconn)
