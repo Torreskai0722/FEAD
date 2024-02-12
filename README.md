@@ -18,11 +18,17 @@ The dataset consists of the following data:
 
 The data is collected from multiple heavy-duty trucks during different driving conditions and environments. Please refer to the paper for more details.
 
-| **Name**        | **Time** | **Trucks** | **Rows**   | **Features**                                                                   | **Download** |
+<!-- | **Name**        | **Time** | **Trucks** | **Rows**   | **Features**                                                                   | **Download** |
 | :-------------: | :------: | :--------: | :--------: | :-----------------------------------------------------------------------------: | :----------: |
 | EMS dataset-1 | 12/2019  | 9          | 10,273,969 | EMS engine data, triggertime, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
 | EMS dataset-2 | 04/2020  | 29         | 26,145,539 | EMS engine data, triggertime, etc. | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
-| IFM dataset   | 06/2020  | 1          | 872,844    | IFM engine data                                                                 | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         |
+| IFM dataset   | 06/2020  | 1          | 872,844    | IFM engine data                                                                 | [link](https://forms.gle/BBo3BSpRB5yoB7TbA)         | -->
+
+| **Name**        | **Time** | **Trucks** | **Rows**   | **Features**                                                                   | **Download** |
+| :-------------: | :------: | :--------: | :--------: | :-----------------------------------------------------------------------------: | :----------: |
+| EMS dataset-1 | 12/2019  | 9          | 10,273,969 | EMS engine data, latitude, longitude, triggertime, city, road level, etc. | [link](https://drive.google.com/file/d/1lLeACfOWyvT_LtFnrN9viqU3SNu_eTBo/view?usp=sharing)         |
+| EMS dataset-2 | 04/2020  | 29         | 26,145,539 | EMS engine data, latitude, longitude, triggertime, city, road level, etc. | [link](https://drive.google.com/file/d/15Awwj26PE0MIGRUW1CiCO2xkP3j8-z2o/view?usp=sharing)         |
+| IFM dataset   | 06/2020  | 1          | 872,844    | IFM engine data                                                                 | [link](https://drive.google.com/drive/folders/1QOVmUDhngrTn10gaT0M31XoPlnpKARX6?usp=sharing)         |
 
 ## Citation
 
